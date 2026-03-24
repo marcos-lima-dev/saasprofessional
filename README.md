@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 SaaS Professional Dashboard
 
-## Getting Started
+Um dashboard administrativo moderno e responsivo construído com as tecnologias mais atuais do ecossistema React. Este projeto foi desenvolvido para simular um sistema de gerenciamento de vendas (SaaS) com foco em performance, acessibilidade e design refinado.
 
-First, run the development server:
+## 🛠️ Tecnologias Utilizadas
 
-```bash
+* **Framework:** [Next.js 15+](https://nextjs.org/) (App Router & Turbopack)
+* **Linguagem:** TypeScript
+* **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
+* **Componentes de UI:** [Shadcn/UI](https://ui.shadcn.com/) (baseado em Radix UI)
+* **Gráficos:** [Recharts](https://recharts.org/)
+* **Ícones:** [Lucide React](https://lucide.dev/)
+* **Notificações:** [Sonner](https://sonner.stevenly.dev/)
+
+## ✨ Funcionalidades
+
+* ✅ **Sidebar Inteligente:** Navegação com detecção de rota ativa (Active Link State).
+* ✅ **Gráficos Interativos:** Visualização de faturamento semanal com efeito de Skeleton Loading.
+* ✅ **Gestão de Pedidos:** Modal interativo para criação de novos registros com feedback visual (Toasts).
+* ✅ **Design Responsivo:** Adaptado para dispositivos móveis e desktops.
+* ✅ **Performance:** Renderização otimizada para evitar Layout Shifts.
+
+## 🚀 Como Rodar o Projeto (Linux Mint / Ubuntu)
+
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/seu-usuario/dashboard-saas.git](https://github.com/seu-usuario/dashboard-saas.git)
+Entre na pasta do projeto:
+
+Bash
+cd dashboard-saas
+Instale as dependências:
+
+Bash
+npm install
+Inicie o servidor de desenvolvimento:
+
+Bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Acesse no seu navegador:
+http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+📝 Próximos Passos
+[ ] Implementar validação de formulários com Zod e React Hook Form.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+[ ] Integração com API real para persistência de dados.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+[ ] Sistema de Autenticação (NextAuth).
 
-## Learn More
+[ ] Dark Mode com next-themes.
 
-To learn more about Next.js, take a look at the following resources:
+Desenvolvido por Marcos Lima 🚀
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+### 💡 Dicas para o Marcos do futuro:
+1.  **Imagens:** Se você tirar um print do dashboard e colocar uma pasta chamada `public/screenshots`, você pode adicionar uma imagem no README usando `![Screenshot](./public/screenshots/dashboard.png)`. Isso chama muita atenção no GitHub!
+2.  **Repositório:** Quando você subir esse código para o seu GitHub, o README será a primeira coisa que as pessoas verão.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Gostou do texto ou quer mudar alguma funcionalidade na lista?** Se estiver tudo ok, o que acha de agora fazermos o **Formulário de Pedido** realmente salvar os dados na tabela? (Isso vai ser o seu primeiro contato com o gerenciamento de estados no React!).
