@@ -20,8 +20,7 @@ Um dashboard administrativo moderno e responsivo construído com as tecnologias 
 * ✅ **Design Responsivo:** Adaptado para dispositivos móveis e desktops.
 * ✅ **Performance:** Renderização otimizada para evitar Layout Shifts.
 
-## 🚀 Como Rodar o Projeto (Linux Mint / Ubuntu)
-
+## 🚀 Como Rodar o Projeto
 1. **Clone o repositório:**
    ```bash
    git clone [https://github.com/seu-usuario/dashboard-saas.git](https://github.com/seu-usuario/dashboard-saas.git)
@@ -54,8 +53,3 @@ Desenvolvido por Marcos Lima 🚀
 
 ---
 
-### 💡 Dicas para o Marcos do futuro:
-1.  **Imagens:** Se você tirar um print do dashboard e colocar uma pasta chamada `public/screenshots`, você pode adicionar uma imagem no README usando `![Screenshot](./public/screenshots/dashboard.png)`. Isso chama muita atenção no GitHub!
-2.  **Repositório:** Quando você subir esse código para o seu GitHub, o README será a primeira coisa que as pessoas verão.
-
-**Gostou do texto ou quer mudar alguma funcionalidade na lista?** Se estiver tudo ok, o que acha de agora fazermos o **Formulário de Pedido** realmente salvar os dados na tabela? (Isso vai ser o seu primeiro contato com o gerenciamento de estados no React!).
