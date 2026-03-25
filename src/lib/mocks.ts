@@ -41,7 +41,7 @@ export const RECENT_ORDERS = [
     id: "#ORD-001",
     customer: "Lourdes Lima",
     initials: "LL",
-    amount: "R$ 250,00",
+    amount: 250.00, // <--- SÓ O NÚMERO, sem "R$" ou aspas
     status: "pago",
     date: "24 Out, 2023",
   },
@@ -49,7 +49,7 @@ export const RECENT_ORDERS = [
     id: "#ORD-002",
     customer: "Pérola Cristina Pet",
     initials: "PCP",
-    amount: "R$ 120,00",
+    amount: 120.00, // <--- SÓ O NÚMERO
     status: "pendente",
     date: "24 Out, 2023",
   },
@@ -57,7 +57,7 @@ export const RECENT_ORDERS = [
     id: "#ORD-003",
     customer: "Senhor Madureira",
     initials: "SM",
-    amount: "R$ 450,00",
+    amount: 450.00, // <--- SÓ O NÚMERO
     status: "pago",
     date: "23 Out, 2023",
   },

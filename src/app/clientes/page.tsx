@@ -1,49 +1,102 @@
-import { CUSTOMERS } from "@/lib/mocks";
-import { OrderStatus } from "@/components/dashboard/order-status";
-import { TableActions } from "@/components/dashboard/table-actions";
-import { User, Mail, Calendar } from "lucide-react";
+"use client";
 
-export default function ClientesPage() {
+import { useOrders } from "@/context/order-context";
+import { 
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { UserPlus, Mail, Phone, User } from "lucide-react";
+import { toast } from "sonner";
+import { DeleteDialog } from "@/components/shared/delete-dialog"; // Importando o componente novo
+
+export default function ClientsPage() {
+  const { clients, removeClient, search } = useOrders();
+
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(search.toLowerCase()) ||
+    client.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleDelete = (id: string, name: string) => {
+    removeClient(id);
+    toast.success(`Cliente ${name} removido com sucesso.`);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Meus Clientes</h1>
-          <p className="text-sm text-slate-500">Gerencie sua base de usuários ativos.</p>
+          <h1 className="text-2xl font-bold text-slate-900">Clientes</h1>
+          <p className="text-sm text-slate-500 font-medium">Gestão de usuários da base.</p>
         </div>
-        <TableActions />
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2 w-full sm:w-auto">
+          <UserPlus size={16} /> Novo Cliente
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {CUSTOMERS.map((customer) => (
-          <div key={customer.id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex items-start justify-between mb-4">
-              <div className="size-12 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <User size={24} />
-              </div>
-              <OrderStatus status={customer.status} />
-            </div>
-
-            <h3 className="font-bold text-slate-900 text-lg">{customer.name}</h3>
-            
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <Mail size={14} />
-                {customer.email}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <Calendar size={14} />
-                Visto por último: {customer.lastActive}
-              </div>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Plano {customer.plan}</span>
-              <button className="text-blue-600 text-sm font-semibold hover:underline">Ver Perfil</button>
+      <Card className="bg-white border-slate-200 shadow-sm overflow-hidden">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4">
+          <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <User size={20} className="text-blue-600" />
+            Base de Dados
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="w-full overflow-x-auto custom-scrollbar">
+            <div className="inline-block min-w-full align-middle">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50/50">
+                    <TableHead className="min-w-[200px] py-4">Cliente</TableHead>
+                    <TableHead className="min-w-[180px]">Contato</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Gasto Total</TableHead>
+                    <TableHead className="w-[100px] text-center">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredClients.map((client) => (
+                    <TableRow key={client.id} className="hover:bg-slate-50/30 transition-colors">
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-900">{client.name}</span>
+                          <span className="text-[10px] font-mono text-slate-400">ID: {client.id}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1 text-[11px] text-slate-500">
+                          <span className="flex items-center gap-1.5"><Mail size={12} /> {client.email}</span>
+                          <span className="flex items-center gap-1.5"><Phone size={12} /> {client.phone}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px]">
+                          {client.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-bold text-slate-700">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(client.spent)}
+                      </TableCell>
+                      
+                      <TableCell className="text-center">
+                        {/* AQUI ESTÁ A MUDANÇA: Substituímos o bloco gigante por uma única linha */}
+                        <DeleteDialog 
+                          title="Excluir cliente?"
+                          description="Você está prestes a remover permanentemente o cliente"
+                          itemName={client.name}
+                          onConfirm={() => handleDelete(client.id, client.name)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </div>
-        ))}
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

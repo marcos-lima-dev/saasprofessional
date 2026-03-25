@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
-import { RECENT_ORDERS as INITIAL_DATA } from "@/lib/mocks";
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from "react";
+import { RECENT_ORDERS as INITIAL_ORDERS } from "@/lib/mocks";
 
 interface Order {
   id: string;
@@ -11,16 +11,70 @@ interface Order {
   status: "Pendente" | "Pago" | "Cancelado";
 }
 
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  spent: number;
+}
+
 interface OrderContextType {
   orders: Order[];
+  clients: Client[]; // Agora é calculado automaticamente
+  search: string;
+  setSearch: (value: string) => void;
   addOrder: (customer: string, amount: number) => void;
-  removeOrder: (id: string) => void; // 1. Adicionamos a assinatura da função
+  removeOrder: (id: string) => void;
+  // Note: removeClient agora removerá todos os pedidos daquele cliente
+  removeClient: (customerName: string) => void;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
 export function OrderProvider({ children }: { children: ReactNode }) {
-  const [orders, setOrders] = useState<Order[]>(INITIAL_DATA as Order[]);
+  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS as Order[]);
+  const [search, setSearch] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("@saas-admin:orders");
+    if (saved) {
+      try { setOrders(JSON.parse(saved)); } catch (e) { console.error(e); }
+    }
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("@saas-admin:orders", JSON.stringify(orders));
+    }
+  }, [orders, mounted]);
+
+  // 🔥 A MÁGICA ESTÁ AQUI:
+  // Varremos todos os pedidos e montamos a lista de clientes única.
+  const clients = useMemo(() => {
+    const clientMap = new Map<string, Client>();
+
+    orders.forEach((order) => {
+      const existing = clientMap.get(order.customer);
+      if (existing) {
+        existing.spent += order.amount;
+      } else {
+        clientMap.set(order.customer, {
+          id: `CL-${order.customer.substring(0, 3).toUpperCase()}`,
+          name: order.customer,
+          email: `${order.customer.toLowerCase().replace(/\s+/g, ".")}@financehub.com`,
+          phone: "(21) 99999-0000",
+          status: "Ativo",
+          spent: order.amount,
+        });
+      }
+    });
+
+    return Array.from(clientMap.values());
+  }, [orders]);
 
   const addOrder = (customer: string, amount: number) => {
     const newOrder: Order = {
@@ -33,15 +87,19 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     setOrders((prev) => [newOrder, ...prev]);
   };
 
-  // 2. A Mágica do "Delete":
-  // Filtramos a lista e mantemos apenas quem NÃO tem o ID que queremos apagar
   const removeOrder = (id: string) => {
-    setOrders((prev) => prev.filter((order) => order.id !== id));
+    setOrders((prev) => prev.filter((o) => o.id !== id));
   };
 
+  const removeClient = (customerName: string) => {
+    // Para remover um cliente desta lógica, removemos os pedidos dele
+    setOrders((prev) => prev.filter((o) => o.customer !== customerName));
+  };
+
+  if (!mounted) return null;
+
   return (
-    // 3. Não esqueça de passar a função no Provider!
-    <OrderContext.Provider value={{ orders, addOrder, removeOrder }}>
+    <OrderContext.Provider value={{ orders, clients, search, setSearch, addOrder, removeOrder, removeClient }}>
       {children}
     </OrderContext.Provider>
   );
