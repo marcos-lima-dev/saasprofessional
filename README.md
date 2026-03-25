@@ -47,4 +47,4 @@ npm run dev
 
 "Dados transformados em inteligência estratégica."
 
-Desenvolvido por Marcos Lima 🚀
+Desenvolvido por Marcos Lima 🚀git add README.md
