@@ -7,12 +7,19 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Mail, Phone, User } from "lucide-react";
+import { UserPlus, Mail, Phone, User, Users, TrendingUp, UserCheck } from "lucide-react";
 import { toast } from "sonner";
-import { DeleteDialog } from "@/components/shared/delete-dialog"; // Importando o componente novo
+import { DeleteDialog } from "@/components/shared/delete-dialog";
+import { StatsCard } from "@/components/shared/stats-card"; // Reutilizando nosso componente!
 
 export default function ClientsPage() {
   const { clients, removeClient, search } = useOrders();
+
+  // --- CÁLCULOS DINÂMICOS PARA OS CARDS ---
+  const totalClients = clients.length;
+  const activeClients = clients.filter(c => c.status === "Ativo").length;
+  const totalSpent = clients.reduce((acc, client) => acc + client.spent, 0);
+  const averageSpent = totalClients > 0 ? totalSpent / totalClients : 0;
 
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -26,16 +33,43 @@ export default function ClientsPage() {
 
   return (
     <div className="space-y-6">
+      {/* CABEÇALHO */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Clientes</h1>
           <p className="text-sm text-slate-500 font-medium">Gestão de usuários da base.</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2 w-full sm:w-auto">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2 w-full sm:w-auto shadow-sm transition-all">
           <UserPlus size={16} /> Novo Cliente
         </Button>
       </div>
 
+      {/* GRID DE RESUMO - REUTILIZANDO COMPONENTES */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatsCard 
+          label="Total de Clientes"
+          value={totalClients}
+          icon={Users}
+          description="Base cadastrada"
+          colorClassName="text-blue-600 bg-blue-50"
+        />
+        <StatsCard 
+          label="Gasto Médio"
+          value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(averageSpent)}
+          icon={TrendingUp}
+          description="Por cliente"
+          colorClassName="text-emerald-600 bg-emerald-50"
+        />
+        <StatsCard 
+          label="Clientes Ativos"
+          value={activeClients}
+          icon={UserCheck}
+          description="Status ativo"
+          colorClassName="text-purple-600 bg-purple-50"
+        />
+      </div>
+
+      {/* TABELA DE DADOS */}
       <Card className="bg-white border-slate-200 shadow-sm overflow-hidden">
         <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4">
           <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -81,7 +115,6 @@ export default function ClientsPage() {
                       </TableCell>
                       
                       <TableCell className="text-center">
-                        {/* AQUI ESTÁ A MUDANÇA: Substituímos o bloco gigante por uma única linha */}
                         <DeleteDialog 
                           title="Excluir cliente?"
                           description="Você está prestes a remover permanentemente o cliente"
@@ -95,6 +128,12 @@ export default function ClientsPage() {
               </Table>
             </div>
           </div>
+
+          {filteredClients.length === 0 && (
+            <div className="p-16 text-center text-slate-400">
+              Nenhum cliente encontrado.
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

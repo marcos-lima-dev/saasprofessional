@@ -12,13 +12,26 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, ReceiptText } from "lucide-react";
+import { 
+  ShoppingBag, 
+  ReceiptText, 
+  DollarSign, 
+  Package, 
+  Clock, 
+  CheckCircle2 
+} from "lucide-react";
 import { toast } from "sonner";
 import { DeleteDialog } from "@/components/shared/delete-dialog";
-import { NewOrderModal } from "@/components/shared/new-order-modal"; // Importando o modal de cadastro
+import { NewOrderModal } from "@/components/shared/new-order-modal";
+import { StatsCard } from "@/components/shared/stats-card"; // Nosso novo componente
 
 export default function OrdersPage() {
   const { orders, removeOrder, search } = useOrders();
+
+  // --- CÁLCULOS DINÂMICOS PARA OS CARDS ---
+  const totalRevenue = orders.reduce((acc, order) => acc + order.amount, 0);
+  const pendingOrders = orders.filter(o => o.status.toLowerCase() === "pendente").length;
+  const paidOrders = orders.filter(o => o.status.toLowerCase() === "pago").length;
 
   const filteredOrders = orders.filter((order) =>
     order.customer.toLowerCase().includes(search.toLowerCase()) ||
@@ -32,14 +45,13 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Cabeçalho */}
+      {/* 1. CABEÇALHO */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Pedidos</h1>
           <p className="text-sm text-slate-500 font-medium">Gerencie as vendas do FinanceHub.</p>
         </div>
         
-        {/* Envolvendo o botão com o Modal de Novo Pedido */}
         <NewOrderModal>
           <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2 w-full sm:w-auto shadow-sm transition-all">
             <ShoppingBag size={16} /> Novo Pedido
@@ -47,6 +59,39 @@ export default function OrdersPage() {
         </NewOrderModal>
       </div>
 
+      {/* 2. GRID DE RESUMO (StatsCards) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatsCard 
+          label="Receita Total"
+          value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRevenue)}
+          icon={DollarSign}
+          description="Volume total bruto"
+          colorClassName="text-emerald-600 bg-emerald-50"
+        />
+        <StatsCard 
+          label="Qtd. Pedidos"
+          value={orders.length}
+          icon={Package}
+          description="Total processado"
+          colorClassName="text-blue-600 bg-blue-50"
+        />
+        <StatsCard 
+          label="Pendentes"
+          value={pendingOrders}
+          icon={Clock}
+          description="Aguardando ação"
+          colorClassName="text-amber-600 bg-amber-50"
+        />
+        <StatsCard 
+          label="Pagos"
+          value={paidOrders}
+          icon={CheckCircle2}
+          description="Vendas concluídas"
+          colorClassName="text-purple-600 bg-purple-50"
+        />
+      </div>
+
+      {/* 3. TABELA DE PEDIDOS */}
       <Card className="bg-white border-slate-200 shadow-sm overflow-hidden">
         <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4">
           <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">

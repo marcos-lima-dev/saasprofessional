@@ -1,154 +1,101 @@
 "use client";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { OrderStatus } from "./order-status";
-import { TableActions } from "./table-actions";
-import { Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useOrders } from "@/context/order-context";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DeleteDialog } from "@/components/shared/delete-dialog";
 import { toast } from "sonner";
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import Link from "next/link";
+import { ArrowRight, ReceiptText } from "lucide-react";
 
 export function RecentOrders() {
-  // 1. Pegamos orders, removeOrder e agora também o SEARCH do contexto
-  const { orders, removeOrder, search } = useOrders();
+  const { orders, removeOrder } = useOrders();
 
-  // 2. Lógica de Filtro: filtramos a lista antes de fazer o .map()
-  // Ela busca pelo nome do cliente ou pelo ID do pedido
-  const filteredOrders = orders.filter((order) => {
-    const searchTerm = search.toLowerCase();
-    return (
-      order.customer.toLowerCase().includes(searchTerm) ||
-      order.id.toLowerCase().includes(searchTerm)
-    );
-  });
+  // No Dashboard, mostramos apenas os 5 mais recentes de forma fixa
+  const latestOrders = [...orders].reverse().slice(0, 5);
 
-  function handleDelete(id: string) {
+  const handleDelete = (id: string) => {
     removeOrder(id);
-    toast.error("Pedido removido!", {
-      description: `O pedido ${id} foi excluído do sistema.`,
-    });
-  }
+    toast.success(`Pedido ${id} removido.`);
+  };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900">Pedidos Recentes</h3>
-          <p className="text-sm text-slate-500 mt-1">Gerencie o histórico de compras.</p>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
+      {/* Cabeçalho mais clean */}
+      <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white">
+        <div className="flex items-center gap-2">
+          <ReceiptText size={18} className="text-blue-600" />
+          <h3 className="text-lg font-bold text-slate-900">Últimas Atividades</h3>
         </div>
-        
-        <TableActions />
+        <Link href="/pedidos">
+          <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 font-bold text-xs gap-1">
+            Ver tudo <ArrowRight size={14} />
+          </Button>
+        </Link>
       </div>
       
-      <Table>
-        <TableHeader className="bg-slate-50/50">
-          <TableRow>
-            <TableHead className="font-bold">ID</TableHead>
-            <TableHead className="font-bold">Cliente</TableHead>
-            <TableHead className="font-bold">Valor</TableHead>
-            <TableHead className="font-bold">Status</TableHead>
-            <TableHead className="font-bold">Data</TableHead>
-            <TableHead className="text-right font-bold">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {/* 3. Se houver pedidos filtrados, mostramos a lista. Se não, avisamos. */}
-          {filteredOrders.length > 0 ? (
-            filteredOrders.map((order) => (
-              <TableRow key={order.id} className="hover:bg-slate-50/50 transition-colors group">
-                <TableCell className="font-medium text-slate-600">{order.id}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-full bg-blue-50 flex items-center justify-center font-bold text-xs text-blue-600">
-                      {order.customer.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-sm font-semibold text-slate-900">{order.customer}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm text-slate-600">
-                  {/* Correção do NaN: forçamos Number() e garantimos 0 se for vazio */}
-                  {new Intl.NumberFormat('pt-BR', { 
-                      style: 'currency', 
-                      currency: 'BRL' 
-                  }).format(Number(order.amount) || 0)}
-                </TableCell>
-                <TableCell>
-                  <OrderStatus status={order.status} />
-                </TableCell>
-                <TableCell className="text-sm text-slate-500">{order.date}</TableCell>
-                
-                <TableCell className="text-right">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-600">
-                        <Trash2 size={18} />
-                      </Button>
-                    </AlertDialogTrigger>
-                    
-                    <AlertDialogContent className="bg-white">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir este pedido?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tem certeza que deseja remover o pedido de <strong>{order.customer}</strong>? 
-                          Essa ação é permanente.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction 
-                          onClick={() => handleDelete(order.id)}
-                          className="bg-red-600 hover:bg-red-700 text-white border-none"
-                        >
-                          Confirmar Exclusão
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={6} className="h-32 text-center text-slate-500 italic">
-                Nenhum pedido encontrado para "{search}".
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      {/* Lista em estilo Feed (Resolve o problema do espaço apertado) */}
+      <div className="divide-y divide-slate-50 flex-1">
+        {latestOrders.map((order) => (
+          <div key={order.id} className="p-4 hover:bg-slate-50/50 transition-colors flex items-center justify-between group">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-9 w-9 border border-blue-100">
+                <AvatarFallback className="bg-blue-50 text-blue-700 text-xs font-bold">
+                  {order.customer.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-slate-900 leading-tight">
+                  {order.customer}
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  {order.id} • {order.date}
+                </span>
+              </div>
+            </div>
 
-      <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/30 flex items-center justify-between">
-        {/* Mostra quantos pedidos estão visíveis no momento */}
-        <p className="text-sm text-slate-500">
-          Mostrando {filteredOrders.length} de {orders.length} pedidos
-        </p>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="text-slate-600 hover:bg-white border-slate-200">
-            Anterior
-          </Button>
-          <Button variant="outline" size="sm" className="text-slate-600 hover:bg-white border-slate-200">
-            Próximo
-          </Button>
-        </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm font-bold text-slate-700">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(order.amount)}
+                </p>
+                <Badge 
+                  variant="outline" 
+                  className={`text-[9px] px-1.5 h-4 border-none ${
+                    order.status.toLowerCase() === "pago" 
+                      ? "bg-green-50 text-green-700" 
+                      : "bg-amber-50 text-amber-700"
+                  }`}
+                >
+                  {order.status}
+                </Badge>
+              </div>
+
+              {/* Usando o nosso DeleteDialog COMPONENTIZADO */}
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                <DeleteDialog 
+                  title="Excluir?"
+                  description="Remover pedido de"
+                  itemName={order.customer}
+                  onConfirm={() => handleDelete(order.id)}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {latestOrders.length === 0 && (
+          <div className="p-12 text-center text-slate-400 text-sm italic">
+            Nenhuma atividade registrada.
+          </div>
+        )}
+      </div>
+
+      <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/30">
+         <p className="text-[11px] text-center text-slate-500 font-medium">
+           Exibindo os últimos lançamentos do FinanceHub
+         </p>
       </div>
     </div>
   );
