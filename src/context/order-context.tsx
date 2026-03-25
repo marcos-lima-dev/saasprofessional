@@ -3,7 +3,6 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { RECENT_ORDERS as INITIAL_DATA } from "@/lib/mocks";
 
-// Definindo o que é um Pedido
 interface Order {
   id: string;
   customer: string;
@@ -15,6 +14,7 @@ interface Order {
 interface OrderContextType {
   orders: Order[];
   addOrder: (customer: string, amount: number) => void;
+  removeOrder: (id: string) => void; // 1. Adicionamos a assinatura da função
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -24,18 +24,24 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
   const addOrder = (customer: string, amount: number) => {
     const newOrder: Order = {
-      id: `#${Math.floor(Math.random() * 9000) + 1000}`, // Gera um ID aleatório
+      id: `#${Math.floor(Math.random() * 9000) + 1000}`,
       customer,
       date: new Date().toLocaleDateString("pt-BR"),
       amount,
       status: "Pendente",
     };
-    // Adiciona o novo pedido no TOPO da lista
     setOrders((prev) => [newOrder, ...prev]);
   };
 
+  // 2. A Mágica do "Delete":
+  // Filtramos a lista e mantemos apenas quem NÃO tem o ID que queremos apagar
+  const removeOrder = (id: string) => {
+    setOrders((prev) => prev.filter((order) => order.id !== id));
+  };
+
   return (
-    <OrderContext.Provider value={{ orders, addOrder }}>
+    // 3. Não esqueça de passar a função no Provider!
+    <OrderContext.Provider value={{ orders, addOrder, removeOrder }}>
       {children}
     </OrderContext.Provider>
   );

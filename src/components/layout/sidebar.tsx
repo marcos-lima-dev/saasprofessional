@@ -35,7 +35,7 @@ export function Sidebar() {
 
         <div className="pt-4 border-t border-slate-800/50">
           <SidebarSection title="Sistema">
-            <SidebarItem icon={Settings} label="Configurações" href="/configuracoes" />
+            <SidebarItem icon={Settings} label="Configurações" href="/settings" />
             <SidebarItem icon={LifeBuoy} label="Suporte" href="/suporte" />
           </SidebarSection>
         </div>
